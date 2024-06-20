@@ -25,10 +25,15 @@ const authRouter = require('./routes/auth')
 app.use('/api/v1', authRouter)
 
 
-const orderRouter = require('./routes/order')
+app.use('/api', (req, res) => {
+    res.json('welcome')
+})
+
+const orderRouter = require('./routes/order');
+const bodyParser = require('body-parser');
 app.use('/api/v1', orderRouter)
 
-//middlewares o handle errors
+//middlewares to handle errors
 app.use(errorMiddleware);
 
 

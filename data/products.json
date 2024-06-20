@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Men's Shirt",
+        "price": 29.99,
+        "description": "A stylish shirt for men",
+        "ratings": 4.5,
+        "images": [
+          { "public_id": "123", "url": "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg" }
+        ],
+        "category": "men",
+        "seller": "Fashion Store",
+        "stock": 50,
+        "numberOfReviews": 10,
+        "reviews": []
+      },
+      {
+        "name": "women's Shirt",
+        "price": 29.99,
+        "description": "A stylish shirt for women",
+        "ratings": 4.5,
+        "images": [
+          { "public_id": "123", "url": "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg" }
+        ],
+        "category": "woman",
+        "seller": "Fashion Store",
+        "stock": 50,
+        "numberOfReviews": 10,
+        "reviews": []
+      },
+      {
+        "name": "kid's Shirt",
+        "price": 29.99,
+        "description": "A stylish shirt for kid",
+        "ratings": 4.5,
+        "images": [
+          { "public_id": "123", "url": "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg" }
+        ],
+        "category": "kids",
+        "seller": "Fashion Store",
+        "stock": 50,
+        "numberOfReviews": 10,
+        "reviews": []
+      },
+      {
+        "name": "shoes",
+        "price": 29.99,
+        "description": "A stylish shirt for kid",
+        "ratings": 4.5,
+        "images": [
+          { "public_id": "123", "url": "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg" }
+        ],
+        "category": "shoes",
+        "seller": "Fashion Store",
+        "stock": 50,
+        "numberOfReviews": 10, 
+        "reviews": []
+      },
+      {
+        "name": "caps",
+        "price": 29.99,
+        "description": "A stylish shirt for kid",
+        "ratings": 4.5,
+        "images": [
+          { "public_id": "123", "url": "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg" }
+        ],
+        "category": "caps",
+        "seller": "Fashion Store",
+        "stock": 50,
+        "numberOfReviews": 10,
+        "reviews": []
+      }
+]

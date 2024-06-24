@@ -1,7 +1,6 @@
 node_modules
 dist
-
-# .gitignore
-config/config.env
+.gitignore
+.env
 
 package-lock.json

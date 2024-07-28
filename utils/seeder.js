@@ -5,7 +5,7 @@ const connectDatabase = require('../config/database')
 const products = require('../data/products.json')
 
 //setting dotenv file
-dotenv.config({ path: 'utis/products.js' })
+dotenv.config()
 
 connectDatabase()
 

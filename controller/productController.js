@@ -68,6 +68,7 @@ exports.getProductInCategory = catchAsyncErrors (async (req, res, next) => {
 
     const resPerPage = 6;
     const pageNo = Math.ceil(productsCount/resPerPage)
+
     let catApiFeature;
 
     if(productsCount > resPerPage) {
@@ -78,17 +79,16 @@ exports.getProductInCategory = catchAsyncErrors (async (req, res, next) => {
         catApiFeature = new APIFeatures(Product.find({category: {eq: category}}), req.query)
         .filter()
     }
-
  
     const products = await catApiFeature.query
 
     if(!products) {
-        return next (new ErrorHandler(`This category does not exist`))
+        return next (new ErrorHandler(`category does not exist`))
     } 
     else if (productsCount <= 0) {
         return res.status(400).json({
             success: false,
-            message: "This Product Folder is empty"
+            message: "Product category is empty"
         })
     }
     

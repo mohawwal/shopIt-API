@@ -26,13 +26,16 @@ app.use('/api/v1', productsRouter)
 const authRouter = require('./routes/auth')
 app.use('/api/v1', authRouter)
 
+const orderRouter = require('./routes/order');
+app.use('/api/v1', orderRouter)
+
+const paymentRouter = require('./routes/payment');
+app.use('/api/v1', paymentRouter)
+
 
 app.use('/api', (req, res) => {
     res.json('welcome')
 })
-
-const orderRouter = require('./routes/order');
-app.use('/api/v1', orderRouter)
 
 //middlewares to handle errors
 app.use(errorMiddleware);

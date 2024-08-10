@@ -33,12 +33,13 @@ const paymentRouter = require('./routes/payment');
 app.use('/api/v1', paymentRouter)
 
 
+//middlewares to handle errors
+app.use(errorMiddleware);
+
 app.use('/api', (req, res) => {
     res.json('welcome')
 })
 
-//middlewares to handle errors
-app.use(errorMiddleware);
 
 
 module.exports = app

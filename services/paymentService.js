@@ -6,32 +6,39 @@ const { initializePayment, verifyPayment } =
 
 class PaymentService {
 	startPayment(data) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				//const { email, amount, products } = req.body;
-				const form = _.pick(data, ["email", "amount", "full_name"]);
-				form.metadata = {
-					full_name: form.full_name,
-				};
-				form.amount *= 100;
-
-				initializePayment(form, (error, body) => {
-					if (error) {
-						return reject(error.message);
-					}
-					try {
-						const response = JSON.parse(body);
-						return resolve(response);
-					} catch (e) {
-						return reject("Invalid JSON response from Paystack");
-					}
-				});
-			} catch (error) {
-				error.source = "Start Payment Service";
-				return reject(error);
-			}
-		});
-	}
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Directly use _.pick without destructuring
+                const form = _.pick(data, ['email', 'amount']);
+    
+                form.metadata = {
+                    products: data.products.map((product) => ({
+                        name: product.name,
+                        quantity: product.quantity,
+                        price: product.price,
+                    }))
+                };
+    
+                form.amount *= 100;
+    
+                initializePayment(form, (error, body) => {
+                    if (error) {
+                        return reject(error.message);
+                    }
+                    try {
+                        const response = JSON.parse(body);
+                        return resolve(response);
+                    } catch (e) {
+                        return reject("Invalid JSON response from Paystack");
+                    }
+                });
+            } catch (error) {
+                error.source = "Start Payment Service";
+                return reject(error);
+            }
+        });
+    }
+    
 
 	createPayment(req) {
 		const ref = req.reference;
@@ -50,14 +57,12 @@ class PaymentService {
 						// Extract necessary fields from the Paystack API response
 						const { reference, amount, status } = response.data;
 						const { email } = response.data.customer;
-						const full_name = response.data.metadata.full_name;
 
 						// Create a new payment object from the API response
 						const paymentDetails = {
 							reference,
 							amount,
 							email,
-							full_name,
 							status,
 						};
 

@@ -41,44 +41,57 @@ class PaymentService {
     
 
 	createPayment(req) {
-		const ref = req.reference;
-		if (ref == null) {
-			return Promise.reject({ code: 400, msg: "No reference passed in query" });
-		}
-		return new Promise(async (resolve, reject) => {
-			try {
-				verifyPayment(ref, (error, body) => {
-					if (error) {
-						return reject(error.message);
-					}
-					try {
-						const response = JSON.parse(body);
-
-						// Extract necessary fields from the Paystack API response
-						const { reference, amount, status } = response.data;
-						const { email } = response.data.customer;
-
-						// Create a new payment object from the API response
-						const paymentDetails = {
-							reference,
-							amount,
-							email,
-							status,
-						};
-
-						// Return the payment details without saving to any database
-						return resolve(paymentDetails);
-					} catch (error) {
-						error.source = "Create Payment Service";
-						return reject(error);
-					}
-				});
-			} catch (error) {
-				error.source = "Create Payment Service";
-				return reject(error);
-			}
-		});
-	}
+        const ref = req.reference;
+        if (!ref) {
+            return Promise.reject({ code: 400, msg: "No reference passed in query" });
+        }
+        return new Promise(async (resolve, reject) => {
+            try {
+                verifyPayment(ref, (error, body) => {
+                    if (error) {
+                        return reject(error.message);
+                    }
+                    try {
+                        const response = JSON.parse(body);
+    
+                        // Check if response.data is defined and has the expected structure
+                        if (!response.data || !response.data.reference) {
+                            return reject({
+                                code: 500,
+                                msg: "Invalid response from Paystack API"
+                            });
+                        }
+    
+                        // Extract necessary fields from the Paystack API response
+                        const { reference, amount, status } = response.data;
+                        const { email } = response.data.customer;
+    
+                        // Determine success based on the transaction status
+                        const isSuccess = status === "success";
+    
+                        // Create a new payment object from the API response
+                        const paymentDetails = {
+                            reference,
+                            amount,
+                            email,
+                            status,
+                            success: isSuccess
+                        };
+    
+                        // Return the payment details
+                        return resolve(paymentDetails);
+                    } catch (error) {
+                        error.source = "Create Payment Service";
+                        return reject(error);
+                    }
+                });
+            } catch (error) {
+                error.source = "Create Payment Service";
+                return reject(error);
+            }
+        });
+    }
+    
 
 	getPayment(reference) {
         return new Promise(async (resolve, reject) => {

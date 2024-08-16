@@ -36,9 +36,9 @@ app.use('/api/v1', paymentRouter)
 //middlewares to handle errors
 app.use(errorMiddleware);
 
-app.use('/api', (req, res) => {
-    res.json('welcome')
-})
+// app.use('/api', (req, res) => {
+//     res.json('welcome')
+// })
 
 
 

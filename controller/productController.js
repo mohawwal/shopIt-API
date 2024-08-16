@@ -33,9 +33,22 @@ exports.getProduct = catchAsyncErrors (async (req, res, next) => {
     const products = await apiFeatures.query
     
 
-    res.json({
+    res.status(200).json({
         success: true,
         productsCount,
+        products
+    })
+
+})
+
+//Get all products (Admin) => /api/v1/products
+exports.getAdminProduct = catchAsyncErrors (async (req, res, next) => {
+
+    const products = await Product.find()
+    
+
+    res.status(200).json({
+        success: true,
         products
     })
 

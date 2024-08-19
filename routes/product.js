@@ -19,7 +19,7 @@ router.route('/products').get(getProduct)
 
 router.route('/admin/products').get(getAdminProduct)
 
-router.route('/product/new').post(isAuthenticatedUser,  authorizeRoles('admin'), newProduct)
+router.route('/admin/product/new').post(isAuthenticatedUser,  authorizeRoles('admin'), newProduct)
 
 router.route('/product/:id').get(getSingleProduct)
 

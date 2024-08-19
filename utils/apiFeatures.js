@@ -45,6 +45,12 @@ class APIFeatures {
         this.query = this.query.limit(resPerPage).skip(skip)
         return this
     }
+
+    sort() {
+        this.query = this.query.sort('-createdAt');
+        return this;
+    }
+
    
 }
 

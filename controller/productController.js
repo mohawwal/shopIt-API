@@ -5,18 +5,54 @@ const catchAsyncErrors = require('../middlewares/catchAsyncErrors')
 
 const APIFeatures = require('../utils/apiFeatures');
 
+const cloudinary = require('cloudinary')
+
 //create new product - /api/v1/product/new
-exports.newProduct = catchAsyncErrors (async (req, res, next) => {
+exports.newProduct = catchAsyncErrors(async (req, res, next) => {
+    let images = [];
 
-    req.body.user = req.user.id;
+    if (typeof req.body.images === 'string') {
+        images.push(req.body.images);
+    } else {
+        images = req.body.images;
+    }
+
+    let imagesLink = [];
+
+    try {
+        for (let i = 0; i < images.length; i++) {
+
+            if(typeof images[i] === 'string' && images[i].startsWith('data:image/')) {
+                const result = await cloudinary.uploader.upload(images[i], {
+                    folder: 'products'
+                });
     
-    const product = await Product.create(req.body);
+                imagesLink.push({
+                    public_id: result.public_id,
+                    url: result.secure_url
+                });
+            } else if(typeof images[i] === 'object' && images[i].url) {
+                imagesLink.push(images[i])
+            } else {
+                return next(new ErrorHandler('Invalid image data type', 400));
+            }
+        }
 
-    res.status(200).json({
-        success: true,
-        product
-    })
-})
+        req.body.images = imagesLink;
+        req.body.user = req.user.id;
+
+        const product = await Product.create(req.body);
+
+        res.status(200).json({
+            success: true,
+            product
+        });
+    } catch (error) {
+        console.error('Error uploading product images:', error);
+        return next(new ErrorHandler('Error in uploading product images', 400));
+    }
+});
+
 
 
 //Get all products => /api/v1/products
@@ -29,6 +65,7 @@ exports.getProduct = catchAsyncErrors (async (req, res, next) => {
                         .search()
                         .filter()
                         .pagination(resPerPage)
+                        .sort('-createdAt');
 
     const products = await apiFeatures.query
     
@@ -144,12 +181,18 @@ exports.updateProduct = catchAsyncErrors (async (req, res, next) => {
 //Delete product => /api/v1/admin/product/:ID
 exports.deleteProduct = catchAsyncErrors (async(req, res, next) => {
 
-    const product = await Product.deleteOne({_id: req.params.id})
+    const product = await Product.findById(req.params.id)
 
-    if(!product.deletedCount) {
+    if(!product) {
         return next(new ErrorHandler('Product not found', 404))
     }
 
+    //Delete images associated with the product
+    for(let i = 0; i < product.images.length; i++) {
+        await cloudinary.v2.uploader.destroy(product.images[i].public_id)
+    }
+
+    await product.deleteOne()
 
     res.status(200).json({
         success: true,

@@ -14,7 +14,6 @@ exports.startPayment = catchAsyncError(async (req, res) => {
             success: "false",
             message: error.message
         })
-
     }
 })
 

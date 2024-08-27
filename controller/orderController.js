@@ -1,5 +1,6 @@
 const Order = require('../models/order');
 const Product = require('../models/product');
+const crypto = require('crypto')
 
 const ErrorHandler = require('../utils/errorHandler');
 const catchAsyncErrors = require('../middlewares/catchAsyncErrors');
@@ -15,6 +16,14 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
         totalPrice,
     } = req.body;
 
+    // if is not a user, generate a guestId using crypto UUID 
+    let userId = req.user ? req.user._id : null
+    let guestId = null;
+
+    if(!userId) {
+        guestId = crypto.randomUUID();
+    }
+
     const order = await Order.create({
         orderItems,
         shippingInfo,
@@ -22,7 +31,8 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
         taxPrice,
         shippingPrice,
         totalPrice,
-        user: req.user._id
+        user: userId,
+        guestId: guestId
     });
 
     res.status(200).json({

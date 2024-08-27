@@ -13,7 +13,7 @@ const {
 
 const { isAuthenticatedUser, authorizeRoles  } = require('../middlewares/auth')
 
-router.route('/order/new').post( isAuthenticatedUser, newOrder )
+router.route('/order/new').post( newOrder )
 
 router.route('/order/:id').get( isAuthenticatedUser, getSingleOrder )
 

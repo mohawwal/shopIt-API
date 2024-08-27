@@ -30,8 +30,15 @@ const orderSchema = mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
+        //required: true,
+        required: false,
         ref: 'User'
+    },
+    
+    //Added a temporary id for guest that are auth
+    guestId: {
+        type: String,
+        required: false
     },
     orderItems: [
         {

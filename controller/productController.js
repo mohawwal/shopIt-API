@@ -50,7 +50,6 @@ exports.newProduct = catchAsyncErrors(async (req, res, next) => {
 			product,
 		});
 	} catch (error) {
-		console.error("Error uploading product images:", error);
 		return next(new ErrorHandler("Error in uploading product images", 400));
 	}
 });

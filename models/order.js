@@ -30,16 +30,15 @@ const orderSchema = mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        //required: true,
-        required: false,
-        ref: 'User'
+        ref: 'User',
+        required: function() { return !this.guestId }, 
     },
-    
-    //Added a temporary id for guest that are auth
     guestId: {
         type: String,
-        required: false
+        required: function() { return !this.user },
+        set: function (v) { return `guest_${v}`; }
     },
+    
     orderItems: [
         {
             name: {
@@ -72,6 +71,9 @@ const orderSchema = mongoose.Schema({
         status: {
             type: String
         }
+    },
+    paidAt: {
+        type: Date
     },
     itemsPrice: {
         type: Number,
@@ -106,6 +108,7 @@ const orderSchema = mongoose.Schema({
         default: Date.now
     }
 }, { timestamps: true })
+
 
 
 module.exports = mongoose.model('Order', orderSchema)

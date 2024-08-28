@@ -1,12 +1,14 @@
 const Order = require('../models/order');
 const Product = require('../models/product');
-const crypto = require('crypto')
 
 const ErrorHandler = require('../utils/errorHandler');
 const catchAsyncErrors = require('../middlewares/catchAsyncErrors');
 
+
+
 // Create a new order = /api/v1/order/new
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
+    console.log('New order request received')
     const {
         orderItems,
         shippingInfo,
@@ -14,26 +16,45 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
         taxPrice,
         shippingPrice,
         totalPrice,
+        paymentInfo
     } = req.body;
 
-    // if is not a user, generate a guestId using crypto UUID 
-    let userId = req.user ? req.user._id : null
-    let guestId = null;
+    let userId = req.userId || null;
+    let guestId = req.guestId || null;
 
-    if(!userId) {
-        guestId = crypto.randomUUID();
+    if (!userId && !guestId) {
+        return next(new Error('User or guest ID not found', 400));
     }
 
-    const order = await Order.create({
+    const orderData = {
         orderItems,
         shippingInfo,
         itemsPrice,
         taxPrice,
         shippingPrice,
         totalPrice,
-        user: userId,
-        guestId: guestId
-    });
+        paymentInfo,
+        paidAt: Date.now(),
+    };
+
+    if(userId) {
+        orderData.user = userId
+    } else {
+        orderData.guestId = guestId
+    }
+
+    const order = await Order.create(orderData)
+
+    // const order = await Order.create({
+    //     orderItems,
+    //     shippingInfo,
+    //     itemsPrice,
+    //     taxPrice,
+    //     shippingPrice,
+    //     totalPrice,
+    //     paymentInfo,
+    //     paidAt: Date.now(),
+    // });
 
     res.status(200).json({
         success: true,
@@ -103,11 +124,14 @@ exports.updateOrders = catchAsyncErrors(async (req, res, next) => {
     }
 
   
-    order.orderItems.forEach(async item => {
-        await updateStock(item.product, item.quantity)
-    })
+    // order.orderItems.forEach(async item => {
+    //     await updateStock(item.product, item.quantity)
+    // })
 
-    
+    await Promise.all(order.orderItems.map(async item => {
+        await updateStock(item.product, item.quantity);
+      }));
+
 
     order.orderStatus = req.body.status
     order.createdAt = Date.now()

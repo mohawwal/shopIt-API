@@ -59,6 +59,9 @@ exports.getProduct = catchAsyncErrors(async (req, res, next) => {
 	const resPerPage = 10;
 	const productsCount = await Product.countDocuments();
 
+	const pageNo = Math.ceil(productsCount / resPerPage);
+
+
 	const apiFeatures = new APIFeatures(Product.find(), req.query)
 		.search()
 		.filter()
@@ -71,6 +74,7 @@ exports.getProduct = catchAsyncErrors(async (req, res, next) => {
 		success: true,
 		productsCount,
 		products,
+		pageNo
 	});
 });
 
@@ -97,7 +101,6 @@ exports.getSingleProduct = catchAsyncErrors(async (req, res, next) => {
 		product,
 	});
 });
-
 //Get products in a category => /api/v1/category?category=:category
 exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 	const { category } = req.query;
@@ -120,19 +123,21 @@ exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 			.pagination(resPerPage);
 	} else {
 		catApiFeature = new APIFeatures(
-			Product.find({ category: { eq: category } }),
+			Product.find({ category: { $eq: category } }),
 			req.query,
 		).filter();
 	}
 
 	const products = await catApiFeature.query;
 
-	if (!products) {
-		return next(new ErrorHandler(`category does not exist`));
-	} else if (productsCount <= 0) {
-		return res.status(400).json({
-			success: false,
-			message: "Product category is empty",
+	if (productsCount === 0) {
+		return res.status(200).json({
+			success: true,
+			category,
+			resPerPage,
+			productsCount,
+			pageNo: 1,
+			products: [],
 		});
 	}
 
@@ -145,6 +150,8 @@ exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 		products,
 	});
 });
+
+
 
 //update product => /api/v1/product/:id
 exports.updateProduct = catchAsyncErrors(async (req, res, next) => {

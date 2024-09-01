@@ -13,11 +13,14 @@ class PaymentService {
     
                 form.metadata = {
                     products: data.products.map((product) => ({
+                        product: product.product,
                         name: product.name,
                         quantity: product.quantity,
                         price: product.price,
                     }))
                 };
+
+                //console.log('Products sent from frontend:', form.metadata.products);
     
                 form.amount *= 100;
     
@@ -63,20 +66,26 @@ class PaymentService {
                         }
     
                         // Extract necessary fields from the Paystack API response
-                        const { reference, amount, status } = response.data;
+                        const { reference, amount, status, metadata } = response.data;
                         const { email } = response.data.customer;
     
                         // Determine success based on the transaction status
                         const isSuccess = status === "success";
-    
+
+                        // Be sure the products are coming from metadata
+                        const products = metadata?.products || [];
+
                         // Create a new payment object from the API response
                         const paymentDetails = {
                             reference,
                             amount,
                             email,
+                            products,
                             status,
                             success: isSuccess
                         };
+
+                        // console.log("Payment data -", paymentDetails);
     
                         // Return the payment details
                         return resolve(paymentDetails);

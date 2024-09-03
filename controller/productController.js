@@ -100,6 +100,8 @@ exports.getSingleProduct = catchAsyncErrors(async (req, res, next) => {
 		product,
 	});
 });
+
+
 //Get products in a category => /api/v1/category?category=:category
 exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 	const { category } = req.query;

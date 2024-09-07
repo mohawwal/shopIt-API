@@ -17,9 +17,9 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please enter product description'],
     },
-    // size: {
-    //     type: String,
-    //     required: [true, 'Please enter product size']
+    // sizes: {
+    //     type: Array,
+    //     required: [true, 'Please pick your size'],
     // },
     ratings: {
         type: Number,

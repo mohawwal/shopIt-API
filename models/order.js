@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { type } = require('os');
 
 const orderSchema = mongoose.Schema({
 
@@ -31,14 +32,14 @@ const orderSchema = mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: function() { return !this.guestId }, 
+        required: function() { return !this.guestId },
     },
     guestId: {
         type: String,
         required: function() { return !this.user },
         set: function (v) { return `guest_${v}`; }
     },
-    
+
     orderItems: [
         {
             name: {
@@ -57,6 +58,10 @@ const orderSchema = mongoose.Schema({
                 type: Number,
                 required: true
             },
+            // size: {
+            //     type: String,
+            //     required: true
+            // },
             product: {
                 type: mongoose.Schema.Types.ObjectId,
                 required: true,

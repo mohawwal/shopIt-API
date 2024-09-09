@@ -73,6 +73,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 	sendToken(user, 200, res);
 });
 
+
 //Get currently logged in user details => /api/v1/me
 exports.getUserProfile = catchAsyncErrors(async (req, res, next) => {
 	const user = await User.findById(req.user.id);
@@ -82,6 +83,7 @@ exports.getUserProfile = catchAsyncErrors(async (req, res, next) => {
 		user,
 	});
 });
+
 
 //Forget Password => /api/v1/password/forgot
 exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
@@ -97,8 +99,8 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 	await user.save({ validateBeforeSave: false });
 
 	//create reset password url
-	//const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
-	const resetUrl = `${req.protocol}://${req.get('host')}/password/reset/${resetToken}`;
+	const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
+	//const resetUrl = `${req.protocol}://${req.get('host')}/password/reset/${resetToken}`;
 
 	const message = `Your password reset token is as follow:\n\n${resetUrl}\n\n
                     If you have not requested this email, then change your password.`;

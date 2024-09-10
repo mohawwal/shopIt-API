@@ -58,10 +58,6 @@ const orderSchema = mongoose.Schema({
                 type: Number,
                 required: true
             },
-            // size: {
-            //     type: String,
-            //     required: true
-            // },
             product: {
                 type: mongoose.Schema.Types.ObjectId,
                 required: true,

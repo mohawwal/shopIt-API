@@ -5,8 +5,8 @@ const cloudinary = require('cloudinary')
 
 //Handle Uncaught Exception
 process.on('uncaughtException', err => {
-console.log(`ERROR: ${err.message}`)
-console.log('Shutting Down Due To Uncaught Exception')
+//console.log(`ERROR: ${err.message}`)
+//console.log('Shutting Down Due To Uncaught Exception')
 process.exit(1)
 })
 

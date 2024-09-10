@@ -25,13 +25,13 @@ exports.startPayment = catchAsyncError(async (req, res) => {
 exports.createPayment = catchAsyncError(async (req, res) => {
     try {
         const response = await paymentInstance.createPayment(req.query)
-        // console.log("cpr -", response)
+        // //console.log("cpr -", response)
 
         const products = response.products
         
 
         for(const item of products) {
-            console.log("item product & quantity - ", item.quantity, item.product);
+            //console.log("item product & quantity - ", item.quantity, item.product);
             await updateStock(item.product, item.quantity)
         }
 
@@ -41,7 +41,7 @@ exports.createPayment = catchAsyncError(async (req, res) => {
         });
         
     } catch(error) {
-        console.log(error)
+        //console.log(error)
         res.status(500).json({
             success: "false",
             message: error.message

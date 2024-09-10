@@ -20,7 +20,7 @@ class PaymentService {
                     }))
                 };
 
-                //console.log('Products sent from frontend:', form.metadata.products);
+                ////console.log('Products sent from frontend:', form.metadata.products);
     
                 form.amount *= 100;
     
@@ -85,7 +85,7 @@ class PaymentService {
                             success: isSuccess
                         };
 
-                        // console.log("Payment data -", paymentDetails);
+                        // //console.log("Payment data -", paymentDetails);
     
                         // Return the payment details
                         return resolve(paymentDetails);

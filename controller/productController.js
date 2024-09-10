@@ -171,7 +171,7 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
 		images = req.body.images;
 	}
 
-	console.log("Received images:", images);
+	//console.log("Received images:", images);
 
 	if (images !== undefined) {
 		for (let i = 0; i < product.images.length; i++) {

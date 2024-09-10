@@ -84,6 +84,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		//console.log(decoded)
 		req.user = await User.findById(decoded.id);
 		next();
 	} catch (error) {
@@ -105,7 +106,8 @@ exports.orderGuestAuthUsers = catchAsyncErrors(async (req, res, next) => {
 
 		try {
 			const decoded = jwt.verify(token, process.env.JWT_SECRET)
-			userId = decoded.userId
+			userId = decoded.id
+			console.log("userId decoded -", userId)
 			req.user = await User.findById(userId)
 		} catch(error) {
 			console.error('JWT verification failed:', error);
@@ -113,7 +115,7 @@ exports.orderGuestAuthUsers = catchAsyncErrors(async (req, res, next) => {
 		}
 
 	} else {
-		guestId = uuidv4()
+		guestId = `guest_${uuidv4()}`
 	}
 
     if(userId) {

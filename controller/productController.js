@@ -155,6 +155,91 @@ exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 });
 
 
+// Get products for Men => /api/v1/products/men
+exports.getMenProducts = catchAsyncErrors(async (req, res, next) => {
+    const resPerPage = 6;  
+    const productsCount = await Product.countDocuments({
+        category: { $regex: /^Men/ }
+    });
+
+    const pageNo = Math.ceil(productsCount / resPerPage);
+
+    let catApiFeature = new APIFeatures(
+        Product.find({ category: { $regex: /^Men/ } }),
+        req.query
+    )
+    .filter()
+    .pagination(resPerPage);
+
+    const products = await catApiFeature.query;
+
+    res.status(200).json({
+        success: true,
+        category: "Men",
+        resPerPage,
+        productsCount,
+        pageNo,
+        products,
+    });
+});
+
+// Get products for Women => /api/v1/products/women
+exports.getWomenProducts = catchAsyncErrors(async (req, res, next) => {
+    const resPerPage = 6;
+    const productsCount = await Product.countDocuments({
+        category: { $regex: /^Women/ }
+    });
+
+    const pageNo = Math.ceil(productsCount / resPerPage);
+
+    let catApiFeature = new APIFeatures(
+        Product.find({ category: { $regex: /^Women/ } }),
+        req.query
+    )
+    .filter()
+    .pagination(resPerPage);
+
+    const products = await catApiFeature.query;
+
+    res.status(200).json({
+        success: true,
+        category: "Women",
+        resPerPage,
+        productsCount,
+        pageNo,
+        products,
+    });
+});
+
+// Get products for Kids => /api/v1/products/kids
+exports.getKidsProducts = catchAsyncErrors(async (req, res, next) => {
+    const resPerPage = 6;
+    const productsCount = await Product.countDocuments({
+        category: { $regex: /^Kids/ }
+    });
+
+    const pageNo = Math.ceil(productsCount / resPerPage);
+
+    let catApiFeature = new APIFeatures(
+        Product.find({ category: { $regex: /^Kids/ } }),
+        req.query
+    )
+    .filter()
+    .pagination(resPerPage);
+
+    const products = await catApiFeature.query;
+
+    res.status(200).json({
+        success: true,
+        category: "Kids",
+        resPerPage,
+        productsCount,
+        pageNo,
+        products,
+    });
+});
+
+
 //update product => /api/v1/product/:id
 exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
 	let product = await Product.findById(req.params.id);

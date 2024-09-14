@@ -1,5 +1,6 @@
 const request = require("request");
 const _ = require("lodash");
+const product = require('../models/product')
 
 const { initializePayment, verifyPayment } =
 	require("../utils/payment")(request);
@@ -9,20 +10,31 @@ class PaymentService {
         return new Promise(async (resolve, reject) => {
             try {
                 // Directly use _.pick without destructuring
-                const form = _.pick(data, ['email', 'amount']);
+                const form = _.pick(data, ['email', 'shippingFee', 'tax']);
     
                 form.metadata = {
                     products: data.products.map((product) => ({
                         product: product.product,
-                        name: product.name,
                         quantity: product.quantity,
-                        price: product.price,
                     }))
                 };
 
-                ////console.log('Products sent from frontend:', form.metadata.products);
-    
-                form.amount *= 100;
+                // Retrieve the product prices from the database
+                let totalAmount = 0;
+                for (const item of data.products) {
+                    const productData = await product.findById(item.product);
+                    if (!productData) {
+                        return reject(`Product with ID ${item.product} not found`);
+                    }
+                    
+                    const productPrice = productData.price * 100;
+                    totalAmount += productPrice * item.quantity;
+                }
+
+                // Add shipping fee and tax to total amount
+                totalAmount += (data.shippingFee + data.tax) * 100;
+
+                form.amount = totalAmount 
     
                 initializePayment(form, (error, body) => {
                     if (error) {
@@ -66,7 +78,7 @@ class PaymentService {
                         }
     
                         // Extract necessary fields from the Paystack API response
-                        const { reference, amount, status, metadata } = response.data;
+                        const { reference, status, metadata, amount } = response.data;
                         const { email } = response.data.customer;
     
                         // Determine success based on the transaction status
@@ -75,10 +87,13 @@ class PaymentService {
                         // Be sure the products are coming from metadata
                         const products = metadata?.products || [];
 
+                        // Convert amount from kobo to naira by dividing by 100
+                        const convertedAmount = amount / 100;
+
                         // Create a new payment object from the API response
                         const paymentDetails = {
                             reference,
-                            amount,
+                            amount: convertedAmount,
                             email,
                             products,
                             status,

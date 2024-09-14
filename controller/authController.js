@@ -14,20 +14,18 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 	let uploadResult = null;
 
 	try {
-		if(uploadResult) {
+		if(req.body.avatar) {
             uploadResult = await cloudinary.v2.uploader.upload(req.body.avatar, {
                 folder: "avatars",
                 width: 150,
                 crop: "scale",
             });
-        } else {
-            uploadResult === null
-        }
+        } 
 	} catch (error) {
 		return next(new ErrorHandler("Error in uploading profile picture", 400));
 	}
 
-	const { name, email, password } = req.body;
+	const { name, email, password } = req.body;s
 	try {
 		const user = await User.create({
 			name,
@@ -36,10 +34,10 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 			avatar: uploadResult ? {
 				public_id: uploadResult.public_id,
 				url: uploadResult.secure_url,
-			} : isNull
+			} : null
 		});
 
-        // //console.log(user)
+        console.log(user)
 
 		sendToken(user, 200, res);
 	} catch (error) {
@@ -98,9 +96,12 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
 	await user.save({ validateBeforeSave: false });
 
-	//create reset password url
-	//const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
-	const resetUrl = `${req.protocol}://${req.get('host')}/password/reset/${resetToken}`;
+	// create reset password url for localhost
+	const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
+	// Replace `${req.get('host')}` with your frontend URL if you know your frontend url
+	// const resetUrl = `${req.protocol}://zarmario.vercel.app/password/reset/${resetToken}`;
+	// If you don't know your frontend url
+	// const resetUrl = `${req.protocol}://${req.get('host')}/password/reset/${resetToken}`;
 
 	const message = `Your password reset token is as follow:\n\n${resetUrl}\n\n
                     If you have not requested this email, then change your password.`;
@@ -126,8 +127,8 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 	}
 });
 
-//reset password => /api/v1/password/reset/:token
 
+//reset password => /api/v1/password/reset/:token
 exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 	try {
 		// Hash URL token

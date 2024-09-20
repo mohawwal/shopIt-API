@@ -25,7 +25,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 		return next(new ErrorHandler("Error in uploading profile picture", 400));
 	}
 
-	const { name, email, password } = req.body;s
+	const { name, email, password } = req.body;
 	try {
 		const user = await User.create({
 			name,
@@ -97,9 +97,9 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 	await user.save({ validateBeforeSave: false });
 
 	// create reset password url for localhost
-	const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
+	//const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
 	// Replace `${req.get('host')}` with your frontend URL if you know your frontend url
-	// const resetUrl = `${req.protocol}://zarmario.vercel.app/password/reset/${resetToken}`;
+	const resetUrl = `${req.protocol}://zarmario.vercel.app/password/reset/${resetToken}`;
 	// If you don't know your frontend url
 	// const resetUrl = `${req.protocol}://${req.get('host')}/password/reset/${resetToken}`;
 

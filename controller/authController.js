@@ -37,7 +37,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 			} : null
 		});
 
-        console.log(user)
+        // console.log(user)
 
 		sendToken(user, 200, res);
 	} catch (error) {

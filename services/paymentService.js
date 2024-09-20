@@ -1,139 +1,134 @@
 const request = require("request");
 const _ = require("lodash");
-const product = require('../models/product')
+const Product = require("../models/product");
+const ErrorHandler = require("../utils/errorHandler");
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
-const { initializePayment, verifyPayment } =
-	require("../utils/payment")(request);
+const { initializePayment, verifyPayment } = require("../utils/payment")(request);
 
 class PaymentService {
-	startPayment(data) {
+    async startPayment(data) {
         return new Promise(async (resolve, reject) => {
             try {
-                // Directly use _.pick without destructuring
-                const form = _.pick(data, ['email', 'shippingFee', 'tax']);
-    
+                const form = _.pick(data, ["email", "amount"]);
+
+                // Validate email and amount
+                if (!form.email) {
+                    return reject(new ErrorHandler("Email is required", 400));
+                }
+
+                const parsedAmount = Number(form.amount) * 100;
+                if (isNaN(parsedAmount)) {
+                    return reject(new ErrorHandler("Amount must be a valid number", 400));
+                }
+
+                if (!data.products || !Array.isArray(data.products) || data.products.length === 0) {
+                    return reject(new ErrorHandler("Products are required", 400));
+                }
+
+                // Add metadata for products
                 form.metadata = {
                     products: data.products.map((product) => ({
                         product: product.product,
                         quantity: product.quantity,
-                    }))
+                    })),
                 };
 
-                // Retrieve the product prices from the database
-                let totalAmount = 0;
+                // Check if all products exist
                 for (const item of data.products) {
-                    const productData = await product.findById(item.product);
+                    const productData = await Product.findById(item.product);
                     if (!productData) {
-                        return reject(`Product with ID ${item.product} not found`);
+                        return reject(new ErrorHandler(`Product with ID ${item.product} not found`, 404));
                     }
-                    
-                    const productPrice = productData.price * 100;
-                    totalAmount += productPrice * item.quantity;
                 }
 
-                // Add shipping fee and tax to total amount
-                totalAmount += (data.shippingFee + data.tax) * 100;
-
-                form.amount = totalAmount 
-    
+                // Initialize payment with Paystack
                 initializePayment(form, (error, body) => {
                     if (error) {
-                        return reject(error.message);
+                        return reject(new ErrorHandler(`Paystack error: ${error.message}`, 500));
                     }
                     try {
                         const response = JSON.parse(body);
+                        if (!response.status || response.status !== true) {
+                            return reject(new ErrorHandler(`Paystack failed: ${response.message}`, 500));
+                        }
                         return resolve(response);
                     } catch (e) {
-                        return reject("Invalid JSON response from Paystack");
+                        return reject(new ErrorHandler("Invalid JSON response from Paystack", 500));
                     }
                 });
             } catch (error) {
                 error.source = "Start Payment Service";
-                return reject(error);
+                return reject(new ErrorHandler(error.message, 500));
             }
         });
     }
-    
 
-	createPayment(req) {
+    async createPayment(req) {
         const ref = req.reference;
         if (!ref) {
-            return Promise.reject({ code: 400, msg: "No reference passed in query" });
+            return Promise.reject(new ErrorHandler("No reference passed in query", 400));
         }
+
         return new Promise(async (resolve, reject) => {
             try {
                 verifyPayment(ref, (error, body) => {
                     if (error) {
-                        return reject(error.message);
+                        return reject(new ErrorHandler(`Paystack error: ${error.message}`, 500));
                     }
+
                     try {
                         const response = JSON.parse(body);
-    
-                        // Check if response.data is defined and has the expected structure
+
+                        // Validate response
                         if (!response.data || !response.data.reference) {
-                            return reject({
-                                code: 500,
-                                msg: "Invalid response from Paystack API"
-                            });
+                            return reject(new ErrorHandler("Invalid response from Paystack API", 500));
                         }
-    
-                        // Extract necessary fields from the Paystack API response
+
                         const { reference, status, metadata, amount } = response.data;
                         const { email } = response.data.customer;
-    
-                        // Determine success based on the transaction status
-                        const isSuccess = status === "success";
 
-                        // Be sure the products are coming from metadata
+                        const isSuccess = status === "success";
                         const products = metadata?.products || [];
 
-                        // Convert amount from kobo to naira by dividing by 100
-                        const convertedAmount = amount / 100;
-
-                        // Create a new payment object from the API response
                         const paymentDetails = {
                             reference,
-                            amount: convertedAmount,
+                            amount: amount / 100, // Convert to Naira
                             email,
                             products,
                             status,
-                            success: isSuccess
+                            success: isSuccess,
                         };
 
-                        // //console.log("Payment data -", paymentDetails);
-    
-                        // Return the payment details
                         return resolve(paymentDetails);
                     } catch (error) {
-                        error.source = "Create Payment Service";
-                        return reject(error);
+                        return reject(new ErrorHandler("Invalid JSON response from Paystack", 500));
                     }
                 });
             } catch (error) {
                 error.source = "Create Payment Service";
-                return reject(error);
+                return reject(new ErrorHandler(error.message, 500));
             }
         });
     }
-    
 
-	getPayment(reference) {
+    async getPayment(reference) {
         return new Promise(async (resolve, reject) => {
             try {
                 verifyPayment(reference, (error, body) => {
                     if (error) {
-                        return reject(error.message);
+                        return reject(new ErrorHandler(`Paystack error: ${error.message}`, 500));
                     }
                     try {
                         const response = JSON.parse(body);
                         return resolve(response.data);
                     } catch (e) {
-                        return reject("Invalid JSON response from Paystack");
+                        return reject(new ErrorHandler("Invalid JSON response from Paystack", 500));
                     }
                 });
             } catch (error) {
                 error.source = 'Get Payment Service';
-                return reject(error);
+                return reject(new ErrorHandler(error.message, 500));
             }
         });
     }

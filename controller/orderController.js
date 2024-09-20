@@ -3,16 +3,15 @@ const Order = require("../models/order");
 
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
+const product = require("../models/product");
 
 // Create a new order = /api/v1/order/new
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 	const {
 		orderItems,
 		shippingInfo,
-		itemsPrice,
 		taxPrice,
 		shippingPrice,
-		totalPrice,
 		paymentInfo,
 	} = req.body;
 
@@ -23,15 +22,28 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 		return next(new Error("User or guest ID not found", 400));
 	}
 
+	let itemPrice = 0;
+
+	for (const item of orderItems) {
+		const products = await product.findById(item.product)
+		if(!products) {
+			return next(new Error("Product not found", 404));
+		}
+
+		itemPrice += products.price * item.quantity
+	}
+
+	const totalPrice = itemPrice + shippingPrice + taxPrice;
+
 	const orderData = {
 		orderItems,
 		shippingInfo,
-		itemsPrice,
 		taxPrice,
 		shippingPrice,
-		totalPrice,
 		paymentInfo,
 		paidAt: Date.now(),
+		itemPrice: itemPrice,
+		totalPrice: totalPrice
 	};
 
 	if (userId) {
@@ -45,6 +57,9 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 	res.status(200).json({
 		success: true,
 		order,
+		itemPrice,
+		totalPrice,
+		email: shippingInfo.email
 	});
 });
 

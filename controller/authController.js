@@ -7,7 +7,6 @@ const sendEmail = require("../utils/sendEmail");
 
 const crypto = require("crypto");
 const cloudinary = require("cloudinary");
-const { isNull } = require("util");
 
 // Register a user => /api/v1/register
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {

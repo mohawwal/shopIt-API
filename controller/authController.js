@@ -163,7 +163,7 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 		sendToken(user, 200, res);
 	} catch (error) {
-		console.error(error);
+		//console.error(error);
 		next(error);
 	}
 });

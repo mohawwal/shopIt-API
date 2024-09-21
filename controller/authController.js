@@ -39,9 +39,13 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
         // console.log(user)
 
 		sendToken(user, 200, res);
-	} catch (error) {
-		return next(new ErrorHandler("error in registering user", 401));
-	}
+	}  catch (error) {
+        if (error.code === 11000) {
+            // MongoDB duplicate key error code
+            return next(new ErrorHandler("Email is already registered", 400));
+        }
+        return next(new ErrorHandler("Error in registering user", 401));
+    }
 });
 
 //Login User => api/v1/Login

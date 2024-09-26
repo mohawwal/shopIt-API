@@ -48,17 +48,30 @@ const orderSchema = mongoose.Schema({
                 type: Number,
                 required: true
             },
+            name: {
+                type: String,
+                required: true
+            },
+            stock: {
+                type: Number,
+                required: true
+            },
+            image: {
+                type: String,
+                required: true
+            },
             product: {
                 type: mongoose.Schema.Types.ObjectId,
                 required: true,
                 ref: 'Product'
+            },
+            price: {
+                type: Number,
+                required: true
             }
         }
     ],
     paymentInfo: {
-        id: {
-            type: String
-        },
         reference: {
             type: String,
         },
@@ -66,7 +79,8 @@ const orderSchema = mongoose.Schema({
             type: Boolean,
         },
         status: {
-            type: String
+            type: String,
+            required: true,
         }
     },
     paidAt: {
@@ -105,7 +119,6 @@ const orderSchema = mongoose.Schema({
         default: Date.now
     }
 }, { timestamps: true })
-
 
 
 module.exports = mongoose.model('Order', orderSchema)

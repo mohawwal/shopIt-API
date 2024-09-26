@@ -52,7 +52,6 @@ exports.orderGuestAuthUsers = catchAsyncErrors(async (req, res, next) => {
 		try {
 			const decoded = jwt.verify(token, process.env.JWT_SECRET)
 			userId = decoded.id
-			console.log("userId decoded -", userId)
 			req.user = await User.findById(userId)
 		} catch(error) {
 			console.error('JWT verification failed:', error);

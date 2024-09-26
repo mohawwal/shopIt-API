@@ -13,15 +13,15 @@ const seedProducts = async () => {
     try {
 
         await Product.deleteMany();
-        //console.log('Products deleted')
+        console.log('Products deleted')
 
         await Product.insertMany(products);
-        //console.log('product added')
+        console.log('product added')
 
         process.exit()
 
     }catch(error) {
-        //console.log(error.message)
+        console.log(error.message)
         process.exit()
     }
 }

@@ -36,8 +36,6 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 			} : null
 		});
 
-        // console.log(user)
-
 		sendToken(user, 200, res);
 	}  catch (error) {
         if (error.code === 11000) {
@@ -163,7 +161,7 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 		sendToken(user, 200, res);
 	} catch (error) {
-		//console.error(error);
+		console.error(error);
 		next(error);
 	}
 });

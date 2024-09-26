@@ -10,7 +10,7 @@ const sendToken = (user, statusCode, res) => {
         expires: expiresDate,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'PRODUCTION',
-        sameSite: 'none'
+        sameSite: 'strict'
     };
 
     res.status(statusCode).cookie('token', token, options).json({

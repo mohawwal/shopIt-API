@@ -1,9 +1,8 @@
 const Order = require("../models/order");
-//const Product = require("../models/product");
-
+const crypto = require('crypto')
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
-const product = require("../models/product");
+const Product = require("../models/product");
 
 // Create a new order = /api/v1/order/new
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
@@ -12,7 +11,6 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 		shippingInfo,
 		taxPrice,
 		shippingPrice,
-		paymentInfo,
 	} = req.body;
 
 	let userId = req.userId || null;
@@ -25,7 +23,7 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 	let itemPrice = 0;
 
 	for (const item of orderItems) {
-		const products = await product.findById(item.product)
+		const products = await Product.findById(item.product)
 		if(!products) {
 			return next(new Error("Product not found", 404));
 		}
@@ -35,15 +33,20 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 
 	const totalPrice = itemPrice + shippingPrice + taxPrice;
 
+	const paymentReference = crypto.randomBytes(8).toString('hex');
+
 	const orderData = {
 		orderItems,
 		shippingInfo,
 		taxPrice,
+		itemsPrice: itemPrice,
 		shippingPrice,
-		paymentInfo,
-		paidAt: Date.now(),
-		itemPrice: itemPrice,
-		totalPrice: totalPrice
+		totalPrice: totalPrice,
+		paymentInfo: {
+			reference: paymentReference,
+			status: "pending",
+		},
+		paidAt: null,
 	};
 
 	if (userId) {
@@ -59,7 +62,8 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
 		order,
 		itemPrice,
 		totalPrice,
-		email: shippingInfo.email
+		email: shippingInfo.email,
+		paymentReference: order.paymentInfo.reference
 	});
 });
 

@@ -7,7 +7,10 @@ const path = require('path');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://zarmario.vercel.app'], // Add your deployed frontend URL here
+    credentials: true,
+  }));
 
 // Middleware for parsing JSON bodies and cookies
 app.use(express.json({ limit: '50mb' }));

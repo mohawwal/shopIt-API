@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const upload = require("../middlewares/upload")
 
 const { isAuthenticatedUser, authorizeRoles } = require('../middlewares/auth')
 
@@ -15,7 +16,7 @@ const {
 } = require('../controller/authController')
 
 
-router.route('/register').post(registerUser)
+router.route('/register').post(upload.single('avatar'), registerUser)
 
 router.route('/login').post(loginUser)
 

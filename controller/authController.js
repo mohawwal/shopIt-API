@@ -1,50 +1,71 @@
 const User = require("../models/user");
-
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
-
 const crypto = require("crypto");
-const cloudinary = require("cloudinary");
+const cloudinary = require('cloudinary').v2;
+const { Readable } = require('stream');
 
 // Register a user => /api/v1/register
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
-	let uploadResult = null;
+    let uploadResult = null;
 
-	try {
-		if(req.body.avatar) {
-            uploadResult = await cloudinary.v2.uploader.upload(req.body.avatar, {
-                folder: "avatars",
-                width: 150,
-                crop: "scale",
-            });
-        } 
-	} catch (error) {
-		return next(new ErrorHandler("Error in uploading profile picture", 400));
-	}
+    try {
+        if (req.file) {
+            // Upload the file using Cloudinary's upload_stream method
+            const streamUpload = (fileBuffer) => {
+                return new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'avatars', width: 150, crop: 'scale' },
+                        (error, result) => {
+                            if (result) {
+                                resolve(result);
+                            } else {
+                                reject(error);
+                            }
+                        }
+                    );
+                    const readableStream = new Readable();
+                    readableStream.push(fileBuffer);
+                    readableStream.push(null); // End the stream
+                    readableStream.pipe(stream);
+                });
+            };
 
-	const { name, email, password } = req.body;
-	try {
-		const user = await User.create({
-			name,
-			email,
-			password,
-			avatar: uploadResult ? {
-				public_id: uploadResult.public_id,
-				url: uploadResult.secure_url,
-			} : null
-		});
+            uploadResult = await streamUpload(req.file.buffer);
+        }
+    } catch (error) {
+        console.error("Error uploading avatar:", error);
+        return next(new ErrorHandler("Error in uploading profile picture", 400));
+    }
 
-		sendToken(user, 200, res);
-	}  catch (error) {
+    const { name, email, password } = req.body;
+
+    try {
+        const user = await User.create({
+            name,
+            email,
+            password,
+            avatar: uploadResult
+                ? {
+                      public_id: uploadResult.public_id,
+                      url: uploadResult.secure_url,
+                  }
+                : null,
+        });
+
+        sendToken(user, 200, res);
+    } catch (error) {
         if (error.code === 11000) {
-            // MongoDB duplicate key error code
             return next(new ErrorHandler("Email is already registered", 400));
         }
         return next(new ErrorHandler("Error in registering user", 401));
     }
 });
+
+
+
 
 //Login User => api/v1/Login
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
@@ -182,6 +203,7 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
 	send(user, 200, res);
 });
 
+
 //update user profile => /api/v1/update
 exports.updateProfile = catchAsyncErrors(async (req, res) => {
 	const newUserData = {
@@ -190,12 +212,14 @@ exports.updateProfile = catchAsyncErrors(async (req, res) => {
 	};
 
 	//Update avatar
+	console.log(req.body.avatar)
 	if (req.body.avatar !== "") {
 		const user = await User.findById(req.user.id);
 
-		if (user && user.avatar && user.avatar.public_id) {
+		if (user?.avatar && user?.avatar?.public_id) {
 			try {
 				const res = await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+				console.log("Previous avatar deleted:", res);
 			} catch (error) {
 				console.error("Error destroying image:", error);
 				return res.status(500).json({
@@ -211,6 +235,7 @@ exports.updateProfile = catchAsyncErrors(async (req, res) => {
 				width: 150,
 				crop: "scale",
 			});
+			console.log("Avatar uploaded:", uploadResult);
 
 			newUserData.avatar = {
 				public_id: uploadResult.public_id,
@@ -257,8 +282,8 @@ exports.logoutUser = catchAsyncErrors(async (req, res, next) => {
 	});
 });
 
-//Admin routes
 
+//Admin routes
 //Get all users => /api/v1/admin/users
 exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 	const users = await User.find();

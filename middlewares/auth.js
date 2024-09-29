@@ -35,8 +35,10 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 		console.log("User from DB:", req.user);
 		next();
 	} catch (error) {
-		console.error('Token verification error:', error);
-		return next(new ErrorHandler('Authentication Failed', 401));
+		if (error instanceof jwt.TokenExpiredError) {
+            return next(new ErrorHandler('Token has expired, please log in again', 401));
+        }
+        return next(new ErrorHandler('Authentication Failed', 401));
 	}
 })
 

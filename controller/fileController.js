@@ -25,8 +25,7 @@ exports.fileUpload = catchAsyncErrors(async (req, res, next) => {
                 message: `${req.file.originalname} uploaded!`
             })
         }
-        
-        
+          
 
     } catch (err) {
         console.log(err);

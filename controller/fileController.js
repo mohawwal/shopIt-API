@@ -19,7 +19,7 @@ exports.fileUpload = catchAsyncErrors(async (req, res, next) => {
                 width: 150,
                 crop: "scale",
             })
-            console.log("result - ", resulty)
+            console.log("result - ", result)
             res.status(200).send({
                 status: "success", 
                 message: `${req.file.originalname} uploaded!`

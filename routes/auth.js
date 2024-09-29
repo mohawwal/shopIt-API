@@ -30,7 +30,7 @@ router.route('/me').get(isAuthenticatedUser, getUserProfile)
 
 router.route('/password/update').put(isAuthenticatedUser, updatePassword)
 
-router.route('/me/update').put(isAuthenticatedUser, updateProfile)
+router.route('/me/update').put(upload.single('avatar'), isAuthenticatedUser, updateProfile)
 
 
 //USER ROUTER

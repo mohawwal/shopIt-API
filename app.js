@@ -8,18 +8,11 @@ const path = require('path');
 const app = express();
 
 // Custom CORS middleware
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'); 
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-
-    next();
-});
+app.use(cors({
+    origin: '*', // Adjust this to your specific frontend URL for better security
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use(cors());
 

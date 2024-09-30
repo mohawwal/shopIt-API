@@ -9,7 +9,7 @@ const app = express();
 
 // Use the CORS package
 app.use(cors({
-    origin: '*',
+    origin: ['http://localhost:3000', 'https://zarmario.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));

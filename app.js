@@ -8,11 +8,13 @@ const path = require('path');
 const app = express();
 
 // Use the CORS package
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+const corsOptions = {
+    origin: 'https://zarmario.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+};
+
+app.use(cors(corsOptions))
 
 // Middleware for parsing JSON bodies and cookies
 app.use(express.json({ limit: '50mb' }));

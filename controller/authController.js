@@ -13,11 +13,12 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 
 	try {
 		if (req.file) {
+			console.log(req.file); 
 			// Upload the file using Cloudinary's upload_stream method
 			const streamUpload = (fileBuffer) => {
 				return new Promise((resolve, reject) => {
 					const stream = cloudinary.uploader.upload_stream(
-						{ folder: "avatars", crop: "scale" },
+						{ folder: "avatars", width: 150, crop: "scale" },
 						(error, result) => {
 							if (result) {
 								resolve(result);
@@ -32,10 +33,6 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 					readableStream.pipe(stream);
 				});
 			};
-
-			if (!req.file.buffer) {
-				return next(new ErrorHandler("File buffer is empty", 400));
-			}
 
 			uploadResult = await streamUpload(req.file.buffer);
 		}

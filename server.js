@@ -2,8 +2,6 @@ const app = require('./app')
 const dotenv = require('dotenv')
 const connectDatabase = require('./config/database')
 const cloudinary = require('cloudinary').v2
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 
 //Handle Uncaught Exception
 process.on('uncaughtException', err => {

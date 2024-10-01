@@ -55,7 +55,7 @@ exports.newProduct = catchAsyncErrors(async (req, res, next) => {
 
 //Get all products => /api/v1/products
 exports.getProduct = catchAsyncErrors(async (req, res, next) => {
-	const resPerPage = 10;
+	const resPerPage = 12;
 	const productsCount = await Product.countDocuments();
 
 	const pageNo = Math.ceil(productsCount / resPerPage);
@@ -109,7 +109,7 @@ exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 		category: { $eq: category },
 	});
 
-	const resPerPage = 6;
+	const resPerPage = 12;
 	const pageNo = Math.ceil(productsCount / resPerPage);
 
 	let catApiFeature;
@@ -154,7 +154,7 @@ exports.getProductInCategory = catchAsyncErrors(async (req, res, next) => {
 
 // Get products for Men => /api/v1/products/men
 exports.getMenProducts = catchAsyncErrors(async (req, res, next) => {
-    const resPerPage = 6;  
+    const resPerPage = 12;  
     const productsCount = await Product.countDocuments({
         category: { $regex: /^Men/ }
     });
@@ -182,7 +182,7 @@ exports.getMenProducts = catchAsyncErrors(async (req, res, next) => {
 
 // Get products for Women => /api/v1/products/women
 exports.getWomenProducts = catchAsyncErrors(async (req, res, next) => {
-    const resPerPage = 6;
+    const resPerPage = 12;
     const productsCount = await Product.countDocuments({
         category: { $regex: /^Women/ }
     });
@@ -210,7 +210,7 @@ exports.getWomenProducts = catchAsyncErrors(async (req, res, next) => {
 
 // Get products for Kids => /api/v1/products/kids
 exports.getKidsProducts = catchAsyncErrors(async (req, res, next) => {
-    const resPerPage = 6;
+    const resPerPage = 12;
     const productsCount = await Product.countDocuments({
         category: { $regex: /^Kids/ }
     });

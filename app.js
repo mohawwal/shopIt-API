@@ -7,14 +7,15 @@ const path = require('path');
 
 const app = express();
 
-// Use the CORS package
+// Allow both localhost and your production domain
 const corsOptions = {
-    origin: 'https://zarmario.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    origin: ['https://zarmario.vercel.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
+
 
 // Middleware for parsing JSON bodies and cookies
 app.use(express.json({ limit: '50mb' }));
